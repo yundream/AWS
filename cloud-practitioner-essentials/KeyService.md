@@ -49,3 +49,5 @@ AWS는 전 지구를 커버하기 위한 글로벌 인프라를 제공한다. AW
 예를 들어 AZ-A와 AZ-B에 웹서버를 분산해 놓으면, AZ-A에 네트워크, 시스템, 소프트웨어 적인 문제가 생기더라도 AZ-B에서 작동중인 웹서버로 서비스를 계속 할 수 있다. 애초에 *가용 영역*이라는 용어 자체가 *가용성을 높이기 위한*이라는 의미를 함축하고 있다.
 
 ### 엣지로케이션
+AWS는 *CloudFront*라는 CDN 서비스를 제공한다. 엣지로케이션(Edge Location)은 CloudFront를 제공하는 서비스 인프라다. CloudFront는 컨텐츠의 사본을 캐시해서 유저에게 빠르게 컨텐츠를 서비스하기 위해서 사용한다. 엣지로케이션은 CloudFront와 Route 53(도메인 서비스)에 대한 요청을 처리해서 사용자가 좀더 빠르게 서비스를 사용 할 수 있도록 한다. 
+![엣지로케이션](https://d1.awsstatic.com/global-infrastructure/maps/AWS-CS-2383-Cloudfront-Map-15-Aug-2018.a015283a565a49343684f56190f31d163c77d4d8.png)
