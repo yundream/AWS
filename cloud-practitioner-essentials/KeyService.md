@@ -99,7 +99,6 @@ AWS에서 NAT 게이트웨이를 서비스 하지 않을 때는 개발자가 EC2
 #### Network Access Control Lists(NACL) 
 VPC네트워크에서 서브넷간 트래픽의 접근을 제어한다. 시큐리티 그룹(Security group)과 비슷한데, 시큐리티그룹은 호스트 단위에서 트래픽을 제어한다.
 
-### VPC 실습
 #### 메인 퀘스트
 AWS에서 VPC를 만든다. 아래의 퀘스트를 모두 수행해야 한다. 메인 퀘스트와 서브 퀘스트로 구성된다. 메인 퀘스트는 필수, 서브 퀘스트는 옵션이다.
   * 10.0.0.0/16 네트워크를 가지는 VPC를 만든다. 약 65,000개의 호스트를 관리할 수 있는 크기다. 
@@ -113,6 +112,52 @@ AWS에서 VPC를 만든다. 아래의 퀘스트를 모두 수행해야 한다. �
   * 퍼블릭 서브넷에서 프라이빗 서브넷으로 8080 포트로만 접근 할 수 있도록 NACL을 설정한다.
   * 우리가 만든 VPC의 네트워크 구성도를 그린다.
   * 프라이빗 서브넷에 있는 EC2 인스턴스에 접근하고 싶다. 어떻게 해야 할까. 
+
+### 시큐리티 그룹(Security Group) 
+클라우드는 컴퓨팅 파워, 네트워크, 스토리지, 소프트웨어를 대여하는 서비스다. 여러 기업들이 클라우드로 부터 자원을 대여하기 때문에 AWS는 다양한 보안 장치와 서비스들을 제공한다. 개발자들이 사용할 수 있는 일차 보안 장치가 *시큐리티그룹*이다.  
+
+시큐리티 그룹은 일종의 방화벽으로 호스트(EC2와 같은)에서 작동한다. 시큐리티 그룹은 iptables와 같은 방화벽이 그렇듯이, IP와 Port를 기반으로 입/출력 트래픽을 제어한다. 이를테면  
+  * 웹서버에서 웹 서비스 : 출발지가 0.0.0.0/0(Any) 이고 목적지가 80과 443인 트래픽만 허용한다.  
+  * 웹서버에서 ssh 접근 : 관리를 위해서 ssh에 접근 할 수 있어야 할 것이다. 하지만 출발지가 0.0.0.0/0이어서는 안될 거다. ssh로의 접근은 사무실과 같은 특정 IP로 제한을 해야 한다. x.x.x.x/32와 같이 접근 할 수 있는 IP를 특정해버리거나 VPN 연결을 한 다음 VPN 네트워크에서의 접근만을 허용하도록 시큐리티 그룹을 설정한다. 
+  * MySql RDS로의 접근 : Mysql은 웹 애플리케이션 서버에서 접근한다. 따라서 웹 애플리케이션 서버가 배치된 서브넷(예. 10.0.1.0/24)에서 3306 포트로 향하는 접근만 허용해야 한다. 데이터베이스 어드민도 접근을 해야 할 건데, VPN 네트워크에서만 접근 할 수 있도록 시큐리티 그룹을 설정한다.
+
+아래의 예를 보자.
+
+![시큐리티 그룹 예](https://docs.google.com/drawings/d/e/2PACX-1vR3lHMSZjkjbnQeU9Rl9E3BY851sOhUBAS73Ve_p-xT47qojs_axsYTow5eY8fkl18ncKBcmXWXx-zN/pub?w=870&h=565)
+
+Web Tier는 인터넷 유저가 접근해야 하므로 0.0.0.0/0주소에서 80/443 포트로 향하는 트래픽을 허용했다. Application Tier는 Web Tier에서 접근해야 하므로 웹티어서브넷/24 주소에서 8080 포트로 향하는 트래픽을 허용했다. Databaser Tier는 Application Tier 서브넷에서 3306 포트로 향하는 트래픽을 허용한다. 그리고 관리의 목적으로 Company/24에서 22와 3306 포트로 향하는 트래픽을 허용한다. Comapny 네트워크와 VPC 네트워크는 VPN으로 연결된다. VPN은 여기에서는 자세히 다루지는 않겠다. 다른 모든 포트는 블럭(Block)했다.
+
+시큐리티 그룹은 *화이트리스트*로 설정한다. 즉 허용하는 목록 외에는 모두 블럭처리 된다. 
+
+### 컴퓨팅 서비스
+
+### Elastic Compute Cloud
+
+### AWS Lambda
+
+### AWS Elastic Beanstalk
+
+### Application Load Balancer
+
+### Elastic Load Balancer
+
+### Auto Scaling
+
+### Amazon Elastic Block Store
+
+### Amazon Simple Storage Service
+
+### Amazon Glacier
+
+### Amazon Relational Database Service
+
+### Anazon DynamoDB
+
+### Amazon Redshift
+
+### Amazon Aurora
+
+### AWS Trusted Advisor
 
 ## 참고
  * [CloudFront detail](https://aws.amazon.com/ko/cloudfront/details/)
