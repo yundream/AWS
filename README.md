@@ -44,6 +44,9 @@ AWS&클라우드 기술을 체화해야겠지만 "목표는 자격 취득"입니
 ## 자격증 로드맵
 ![이미지](src/cert-roadmap-update-horz.db90b31e06fa36d126fb6caed07119b1a71181db.png)
 
+### 초기 스터디 순서
+ * [클라우드 컨셉](cloud-practitioner-essentials)
+
 ### AWS Certified Cloud Practitioner
 클라우드 개념, AWS 서비스, 보안, 아키텍처, 요금 및 지원에 대한 개요를 제공한다. AWS에 대한 기초로 전반적인 내용을 다룬다. Associate와 Professional을 위한 기본단계다. 이 자격은 "옵션"이다. 
   * AWS의 실무 적용만이 목표라면 굳이 들을 필요는 없겠으나, 목표가 "자격증 취득"이므로 읽어야 한다.
