@@ -191,15 +191,13 @@ EC2를 선택하면, EC2 대시보드 화면으로 넘어간다. 먼저 리전�
 
 AWS에서 제공하는 AMI외에, 사용자가 직접 특정 애플리케이션을 포함한 AMI를 만들어서 배포할 수도 있다. 이런 AMI은 *My AMIs*에 등록해서 사용하면 된다. AMI는 *AWS Marketplace* 올려서 판매 할 수도 있다. Marketplace에는 WordPress, GitLabs, OpenVPN, Atlassian Jira & Confluence 등 다양한 AMI들이 올라와 있다.      
 
-![인스턴스 타입 선택](img/ec2_image_select.png)
+![인스턴스 상세](img/ec2_configure_detail.png)
 
-인스턴스 타입을 선택 할 수 있다. 선택의 주요 항목은 *Familiy*와 *Type* 다.
+인스턴스 타입을 선택 한다. 선택의 주요 항목은 *Familiy*와 *Type* 다.
   * Family : 최적화 유형이다. 애플리케이션에 따라서 CPU 우선, 메모리 우선, 일반적인 목적등 적절한 Family를 선택할 수 있다.
   * Type : 하드웨어 용량이라고 보면 되겠다. Type에 따라서 vCPU의 갯수와 메모리 크기가 결정된다.
 
 1 vCPU(virtual CPU), 0.5G 메모리같은 최소사양에서 시작해서, 96 vCPU, 384G 메모리 같은 고성능 타입이 준비돼 있다. 
-
-![인스턴스 상세](img/ec2_configure_detail.png)
 
 인스턴스 상세설정 단계다.
   * Request Spot instances : 스팟 인스턴스를 사용할지 결정한다. 스팟 인스턴스는 인스턴스 비용을 절약하기 위해서 사용한다. AWS는 클라우드 플랫폼이기 때문에, 남는 자원이 있을 수 있다. 이 남는 자원을 수요/공급의 법칙에 따라서 싸게 사용할 수 있는 서비스다.
@@ -227,8 +225,30 @@ AWS에서 제공하는 AMI외에, 사용자가 직접 특정 애플리케이션�
 
 ![ssh key pair 생성](img/ec2_ssh_key.png)
 
-다음 *Review and Launch* 페이지로 이동한다. 여기에서는 지금까지의 인스턴스 설정을 리뷰 할 수 있다. *Launch*를 선택하면 *Create a New Key Pair* 창이 뜬다. 여기에서 ssh로 연결하기 위한 key를 설정할 수 있다. 지금은 key pair가 없을 테니, joinc_test 이름으로 새로운 key paire를 만들었다. Download Key Pair 를 클릭하면 key 파일을 다운로드 할 수 있다.  
+다음 *Review and Launch* 페이지로 이동한다. 여기에서는 지금까지의 인스턴스 설정을 리뷰 할 수 있다. *Launch*를 선택하면 *Create a New Key Pair* 창이 뜬다. 여기에서 ssh로 연결하기 위한 key를 설정할 수 있다. 지금은 key pair가 없을 테니, joinc_test 이름으로 새로운 key paire를 만들었다. Download Key Pair 를 클릭하면 key 파일을 다운로드 할 수 있다. 파일이름은 *joinc_test.pem* 이다.  
 
+![ec2 대시보드](img/ec2_view_instance.png)
+
+이제 인스턴스 정보를 확인할 수 있다. 아직 만들어지지 않았다면 *pending*상태일테고, 잠시(2-3분 정도) 기다리면 *running*상태가 된다. 인스턴스 상세 정보를 보자. 
+  * Instance state : 인스턴스의 형재 상태를 알 수 있다. 
+  * Security groups : 시큐리티그룹 정보를 확인 할 수 있다. ssh 연결이 안되거나 애플리케이션 연결이 안되면 가장 먼저 살펴봐야 할 부분이다.
+  * IPv4 Public IP : 퍼블릭 IP다. 이 IP로 접근 할 수 있다.
+  * Private IPs : VPC 프라이빗 IP다. 외부에서는 접근 할 수 없다. 같은 VPC에 있는 인스턴스 혹은 VPN으로 연결된 상태에서 접근 할 수 있다.
+  * Key pair name : ssh 연결에 사용할 key pair 이름이다.
+이제 ssh 연결을 해보자. joinc_test.pem 파일의 권한은 400으로 조정하자.
+```
+# ssh -i joinc_test.pem ec2-user@13.125.253.240
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-ami/2018.03-release-notes/
+11 package(s) needed for security, out of 20 available
+Run "sudo yum update" to apply all updates.
+[ec2-user@ip-172-31-18-239 ~]$ 
+```
+인스턴스를 만들고 로그인에 성공했다.
 ### AWS Lambda
 
 ### AWS Elastic Beanstalk
