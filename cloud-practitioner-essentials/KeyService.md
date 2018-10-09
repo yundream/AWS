@@ -297,7 +297,74 @@ NginX가 설치된 간단한 웹 서버를 만들어서 Classic Load Balancer로
 
 ![테스트 애플리케이션 등록](img/elb_01.png)
 
-두 개의 인스턴스를 ap-northeast-2a,2c 에 분산실행 했다.
+두 개의 인스턴스를 ap-northeast-2a,2c 에 분산실행 했다. 로드 밸런서는 EC2 대시보드 왼쪽 메뉴에서 확인 할 수 있다. *Load Balancers*를 선택한 다음 *Create Load Balancer*를 클릭하자. 3가지 유형의 로드밸런서 선택화면이 나온다. 
+
+![ELB 타입 선택](img/elb_type.png)
+
+Classic Load Balancer이 보인다. *PREVIOUS GENERATION*이라고 박아 놓고, 회색이라서 왠만해서는 사용하지 말라는 느낌이 난다. 실제 업무에서는 굳이 쓸일은 없을 것이지만, 로드밸런서 기본기를 다지게 해준다는 점에서 Network Load Balancer과 Application Load Balancer의 학습을 쉽게 해준기 때문에 나름 의미는 있다. *Create*를 누르자.
+
+![ELB 정의](img/elb_defineLB.png)
+
+  * Load Balancer name : elb-demo로 설정했다.
+  * Create LB Inside : elb를 배치할 VPC를 설정한다. 디폴트 VPC를 선택했다.
+  * Create an internal load balancer : 로드밸런서는 *external*과 *internal* 두개 타입이 있다. external은 외부 인터넷에서의 연결접접을 만들기 위해서, internal은 VPC 내부에서의 연결접점을 위해서 사용할 수 있다. 
+  * Listen Configuration : 로드밸런서는 프락시(Proxy)처럼 작동한다. 즉 외부에 노출한 포트번호를 내부에 있는 인스턴스의 포트번호로 전달하는 일을 한다. 일반적으로 인터넷상에서 웹 브라우저는 80과 443 포트로 연결을 한다. 그래서 Load Balancer Port는 80과 443을 선택했다. 앞서 만든 2개의 인스턴스는 80번 포트를 오픈하고 있으므로 Instance Port는 80으로 설정했다. 다만 443 포트를 설정하기 위해서는 SSL 인증서를 ELB에 오프로드 시켜야 하는데, 지금은 인증서를 사용하지 않을 것이다. 그러니 80번 포트만 오픈하도록 했다. 
+
+시큐리티그룹을 설정한다. 0.0.0.0/0(any)에서 80번 포트로 오는 연결을 허용하는 정책을 담은 elb-demo 시큐리티 그룹을 만들었다.
+![ELB 시큐리티그룹 정의](img/elb_sg.png)
+
+다음 *Configure Security Settings*로 가면 경고메시지가 뜰 거다. *HTTPS* 프로토콜 설정을하지 않았기 때문인데, 실 서비스용이 아니니 무시하고 넘어가자.
+
+*Configure Health Check* 설정이다.
+
+![헬스체크 설정](img/elb_health.png)
+
+로드밸런서는 "1. 요청(로드)를 하나 이상의 인스턴스로 분산한다. 2. 문제가 생긴 인스턴스를 로드밸런서 그룹에서 제외 함으로써 내결함성을 확보한다"는 두 개의 핵심 기능요소를 가지고 있다. 
+Configure Health Check"에서 헬스체크할 페이지를 등록할 수 있다. ELB는 헬스체크가 실패하면, 인스턴스를 로드밸런서 그룹에서 제외해서 요청이 가지 않도록 한다.
+  * Ping Protocol : 헬스체크에 사용할 프로토콜 
+  * Ping Port : 헬스체크할 포트
+  * Ping Path : 헬스체크할 URL
+Advanced Details에서 헬스체크 조건을 설정 할 수 있다. 
+  * Response Timeout : 5초 동안 응답이 없으면 실패로 설정했다.
+  * Interval : 30초 간격으로 테스트 한다.
+  * Unhealthy threshold : 2번 연속 실패하면, 헬스체크 실패로 간주한다. 
+  * healthy threshold : 헬스체크 실패한 뒤에도, ELB는 지속적으로 헬스체크를 한다. 인스턴스가 복구되서 10번 연속 요청이 성공하면, 헬스상태가 됐다고 판단한다. 현재 Interval로 10번이면 5분이라는 시간동안 기다려야 하므로, 테스트하기 쉽게 2 정도로 수정하자.
+
+다음 *Add EC2 Instance*에서 ELB에 붙일 인스턴스들을 선택하면 된다.
+![인스턴스 추가](img/elb_addins.png)
+
+미리 만들어둔 2개의 인스턴스를 ELB에 붙이기로 했다. 다음 "Add Tag"는 건너뛰고 "Review and Create" 화면으로 넘어가자.  
+
+*Reviw and Create* 우리가 설정한 ELB의 자세한 내용을 확인 할 수 있다. 
+![ELB 리뷰](img/elb_review.png)
+Create를 누르면 ELB를 만든다.
+
+이제 ELB 대시보드에서 "elb-demo" 로드밸런서를 확인 할 수 있다. 대시보드화면에서 *Instances* 탭을 클릭하면 로드밸런서에 추가한 인스턴스들이 성공적으로 붙었는지 확인 할 수 있다. Status가 InService면 성공적으로 붙었다는 의미다.
+
+![ELB 대시보드](img/elb_dashboard.png)
+
+Description 탭에서 ELB에 대한 자세한 내용을 확인 할 수 있다.
+
+![ELB 대시보드](img/elb_description.png)
+
+*DNS name*이 보일거다. 이 주소로 테스트를 해보자. HTML 페이지는 테스트를 위해서 미리 수정해놨다.
+```
+$ curl elb-demo-1507078931.ap-northeast-2.elb.amazonaws.com
+<html>
+<body>
+	<h1>Hello World. I'm Instance-02</h1>
+</body>
+</html>
+
+$ curl elb-demo-1507078931.ap-northeast-2.elb.amazonaws.com
+<html>
+<body>
+        <h1>Hello World. I'm Instance-01</h1>
+</body>
+</html>
+```
+
+지금의 ELB 구성을 이미지로 정리했다.
 
 ### Application Load Balancer
 
