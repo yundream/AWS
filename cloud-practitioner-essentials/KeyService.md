@@ -363,15 +363,119 @@ $ curl elb-demo-1507078931.ap-northeast-2.elb.amazonaws.com
 </body>
 </html>
 ```
-
-지금의 ELB 구성을 이미지로 정리했다.
-
 ### Application Load Balancer
-
 
 ### Auto Scaling
 
 ### Amazon Elastic Block Store
+컴퓨팅 서비스는 저장소를 필요로 한다. AWS는 EBS와 S3, Glacier 3개의 저장소를 지원한다. 
+  * EBS : 랜덤엑세스가 가능한 Block Store 다. 하드디스크(혹은 SSD)의 클라우드 서비스다.
+  * S3 : Object Store다. 단순화해서 파일(Object)단위로 접근할 수 있는 인터페이스를 제공하는 서비스다. 기능적으로 FTP와 유사한 서비스다.
+  * Glacier : 데이터의 장기보관에 촛점을 맞춘 서비스다. 테이프 저장장치와 비슷한 목적의 서비스다.  
+
+EC2를 생각해보자. 개념적으로 EC2는 "AWS는 CPU와 메모리의 거대한 풀을 관리하고 유저가 요구 할 때, 그 용량만큼 대여해서 제공하는" 서비스로 묘사할 수 있다. EBS도 *AWS는 거대한 디스크 풀을 관리하고 유저가 요구 할 때, 용량만큼 제공하는 서비스*로 묘사할 수 있다.
+
+인스턴스에 디스크 공간이 필요하다고 생각되면 EBS 볼륨을 이용하면 된다. EBS 볼륨은 하드디스크나 SSD 타입을 선택할 수 있고, 사용한 만큼 지불하는 서비스다. 더 이상 필요 없다면, 삭제해서 결제를 중지 할 수 있다. EBS는 아래의 특징을 가지고 있다.
+  * 워크로드를 위한 다양한 타입 : 프로비저닝된 IOPS, 범용 SSD, 처리량 최적화 HDD, 콜드 HDD 
+  * 내구성과 가용성 : 0.1 % 0.2%의 ARF(연간고장률)을 보장한다. 일반적인 상용하드 디스크는 4% 정도다. 1000개의 EBS 볼륨을 1년간 유지하면 1-2개의 볼륨에서 장애가 발생할 것을 예상 할 수 있다.  
+  * 스냅샷 : 데이터의 특정 시점에 S3에 저장되는 백업용 스냅샷을 만들 수 있다. 증분 스냅샷을 만들기 때문에, 효율적으로 데이터를 복원 할 수 있다. 스냅샷 크기가 작아지기 때문에, 저장 비용도 효율적으로 관리 할 수 있다. 
+  * 암호화 : 루트볼륨과 데이터 볼륨에 대한 암호화를 제공한다. AWS의 키 관리시스템인 KMS가 키를 관리하므로 유저개 개입할 필요가 없다.
+  * 속도 : 버튼 클릭 몇 번으로 디스크를 만들고 인스턴스에 붙일 수 있다.
+
+EBS를 인스턴스에 붙여보자. 테스트를 위해서 EC2 인스턴스를 하나 만들었다. 인스턴스에 ssh로 접근한 다음 볼륨정보를 확인해보자. lsblk로 확인 할 수 있다.
+```
+$ lsblk 
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0   8G  0 disk 
+└─xvda1 202:1    0   8G  0 part /
+```
+인스턴스 만들 때 설정했던 8G 짜리 루트볼륨이 보인다. 10G 크기의 SSD 디스크를 추가로 붙여보자. AWS 콘솔의 EC2 대시보드의 *ELASTIC VOLUME SOTORE > Volumes* 를 선택하자. 
+
+![볼륨 정보 보기](img/elb_volumelist.png)
+
+루트볼륨이 보인다. *Create Volume* 버튼을 누르면 볼륨 생성단계로 넘어간다.
+
+![볼륨 만들기](img/elb_create.png)
+  * Volume Type : General Purpose SSD를 선택했다.
+  * Size : 볼륨크기다 기가(G)단위다.
+  * Availability Zone : 볼륨을 전개할 AZ이다. 볼륨은 AZ 단위로 공유해서 사용 할 수 있다. 따라서 붙이고자 하는 인스턴스가 있는 AZ에 전개해야 한다.    
+  * Snapshot ID : 스냅샷으로 부터 볼륨을 만들 수 있다. 스냅샷으로 부터 데이터를 복원하기 위해서 사용 할 수 있다.
+  * Encryption : 암호화된 볼륨을 만들 때 사용한다.
+
+볼륨을 만들면 아래와 같이 볼륨아이디가 출력된다.
+
+![볼륨 ID](img/elb_volumeid.png)
+
+이렇게 만든 볼륨은 지금은 독립적으로 존재한다. 이 볼륨은 볼륨이 만들어진 AZ에 있는 어떤 인스턴스라도 자유롭게 붙일 수 있다. 볼륨을 선택한다음 *Attach Volume* 으로 인스턴스에 붙이자.
+
+![볼륨 attach](img/elb_attach.png)
+
+붙일 인스턴스를 선택한 다음 *Attach* 버튼을 누르면 된다.
+
+![볼륨을 인스턴스에 attach하기](img/elb_attachins.png)
+
+EC2 인스턴스를 에서 Attach한 볼륨을 확인 할 수 있다.
+
+![볼륨 확인](img/elb_view.png)
+
+이제 실행 중인 인스턴스에서 볼륨을 마운트해보자. 먼저 볼륨이 제대로 붙었는지 확인한다.
+```
+$ lsblk 
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0   8G  0 disk 
+└─xvda1 202:1    0   8G  0 part /
+xvdf    202:80   0  10G  0 disk 
+```
+10기가 짜리 xvdf 볼륨을 확인 할 수 있다. file 명령으로 파일 시스템의 유형과 특수 정보를 확인 할 수 있다. 
+```
+# file -s /dev/xvdf
+/dev/xvdf: data
+```
+볼륨정보로 data만 출력된다면 파일시스템이 없는 것이므로 파일시스템을 만들어야 한다. mkfs로 파일시스템을 만든다음 파일 정보를 확인해보자.
+```
+# mkfs -t ext4 /dev/xvdf 
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+655360 inodes, 2621440 blocks
+131072 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=2151677952
+80 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done 
+
+# file -s /dev/xvdf
+/dev/xvdf: Linux rev 1.0 ext4 filesystem data, UUID=016070c8-e5b1-45bc-abee-fbba24f636a7 (extents) (64bit) (large files) (huge files)
+```
+이제 파일시스템을 마운트하면 된다. /usr/data에 마운트해보자.
+```
+# mkdir /usr/data
+# mount /dev/xvdf /usr/data/
+```
+df 명령으로 마운트된 디바이스 정보를 확인해보자.
+```
+# df
+Filesystem     1K-blocks    Used Available Use% Mounted on
+devtmpfs          487072       0    487072   0% /dev
+tmpfs             504692       0    504692   0% /dev/shm
+tmpfs             504692     444    504248   1% /run
+tmpfs             504692       0    504692   0% /sys/fs/cgroup
+/dev/xvda1       8376300 1175676   7200624  15% /
+tmpfs             100940       0    100940   0% /run/user/1000
+tmpfs             100940       0    100940   0% /run/user/0
+/dev/xvdf       10190100   36888   9612540   1% /usr/data
+```
 
 ### Amazon Simple Storage Service
 
