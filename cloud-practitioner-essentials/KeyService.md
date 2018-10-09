@@ -268,11 +268,39 @@ AWS의 S3, CloudWatch, DynamoDB, Kinesis 등은 이벤트를 발생한다. 이�
   * 람다함수는 최대 5분까지 실행된다.
   * 요청과 응답 본문 페이로드는 6M를 초과 할 수 없다.
   * 이벤트 본문은 128kbit를 초과할 수 없다.
+
 ### AWS Elastic Beanstalk
+
+### Elastic Load Balancer
+AWS는 ELB(Elastic Load Balancer)이라고 하는 로드밸런서를 제공한다. ELB는 아래 3가지 유형의 로드밸런서를 제공한다. 
+  * Classic Load Balancer 
+  * Application Load Balancer 
+  * Network Load Balancer 
+여기에서는 *Classic Load Balancer*를 설명한다. 이름에서 처럼 Classic Load Balancer는 상대적으로 최근에 제공된 ALB에 비해서, 오래된 로드밸런서 타입이다. 오래된 로드밸런서인 만큼 기능적으로 ALB에 밀리며, 최근에는 아예 ALB로 시작하라고 AWS에서 가이드하고 있다. EC2 인스턴스가 EC2 Classic 네트워크에 구축된 경우가 아니라면 Classic Load Balancer를 사용할 일은 없을 것이다. 다만 기 구축된 ELB의 경우 Classic Load Balancer이 꽤 있고, 그 단순함 때문에 간혹 사용하는 경우가 있어서 기본 내용은 알아두는게 좋을 것이다. 
+
+ELB는 아래의 목적으로 사용한다.
+  * 유일하게 노출되는 엑세스 포인트를 제공. 웹 서버의 접근을 보호한다. 
+  * 트래픽을 여러 가용 영역으로 분산하여 고가용성, 내결함성을 제공한다. 
+  * 트래픽을 분산해서 탄력성과 확장성을 제고한다.
+
+ELB 가장 중요한 목표는 트래픽의 분산이다. ELB는 TCP 요청과 HTTP 요청을 분산 할 수 있는데, TCP의 경우 "라운드 로빈"방식으로 요청을 분산한다. HTTP나 HTTPS에 대해서는 최소대기 요청 즉, 대기가 가장 적은 인스턴스로 요청을 보내서 좀더 지능적으로 트래픽을 분산 할 수 있다. ELB는 하나 이상의 가용영역에 트래픽을 분산 할 수 있는데, 이 기능으로 고가용성과 내결함성을 확보할 수 있다.
+
+Classic Load Balancer를 이용한 일반적인 애플리케이션 구성은 아래와 같다.
+
+![Classic Load Balancer 일반구성](https://docs.google.com/drawings/d/e/2PACX-1vT4pZ0TCO2HsaJWjC_XVp7fJF5XFn0phG72sA004ovXVg783vKnRLPSx5se1LuLM9lhPuZ6_I4J7Czj/pub?w=696&h=647)
+  * 웹 애플리케이션 서버를 AZ에 분산해서 배치한다.
+  * 분산된 웹 애플리케이션을 ELB 로드밸런서 그룹에 포함한다.
+  * 클라이언트 입장에서 ELB는 웹 애플리케이션 서버에 연결하기 위한 단일 연결 지점이 된다.
+ELB가 만들어지면 ELB를 위한 *도메인 주소*가 할당된다. 원리적으로는 클라이언트는 이 도메인주소로 접근 할 수 있으나 AWS 시스템이 할당한 주소라서 그대로 사용하기엔 무리다. 보통은 별도의 도메인을 만들어서 Route 53에 CNAME으로 등록해서 사용한다.
+
+NginX가 설치된 간단한 웹 서버를 만들어서 Classic Load Balancer로 서비스해보자. 2개의 EC2 인스턴스를 만들어서 AZ에 분산해서 배치 한다. 분산 배치가 완료된 상태라고 가정하고 진행 한다. 디폴트 VPC를 가지고 테스트 한다. 디폴트 VPC는 두 개의 서브넷을 가지고 있으니 테스트에 문제 없다.
+
+![테스트 애플리케이션 등록](img/elb_01.png)
+
+두 개의 인스턴스를 ap-northeast-2a,2c 에 분산실행 했다.
 
 ### Application Load Balancer
 
-### Elastic Load Balancer
 
 ### Auto Scaling
 
