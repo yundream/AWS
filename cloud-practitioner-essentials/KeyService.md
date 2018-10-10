@@ -363,7 +363,6 @@ $ curl elb-demo-1507078931.ap-northeast-2.elb.amazonaws.com
 </body>
 </html>
 ```
-### Application Load Balancer
 
 ### Auto Scaling
 
@@ -476,6 +475,14 @@ tmpfs             100940       0    100940   0% /run/user/1000
 tmpfs             100940       0    100940   0% /run/user/0
 /dev/xvdf       10190100   36888   9612540   1% /usr/data
 ```
+### Application Load Balancer
+OSI 모델에서 로드밸런서는 Layer 4와 Layer 7에서 작동한다. Layer 4(전송계층)은 네트워크 프로토콜(TCP)레벨에서 작동한다. 실제 데이터를 살펴볼 수 없기 때문에, HTTP의 헤더 정보를 이해할 수 없어서 단순한 부하분산만 가능하다.  
+
+Layer 7은 애플리케이션 프로토콜 레벨에서 작동한다. HTTP 헤더 정보 필요할 경우 바디(body) 정보도 읽을 수 있기 때문에 지능적인 부하 분산이 가능하다. 예를들어 아래와 같은 요청들을 처리 할 수 있다.
+  * GET /api/music 요청일 경우 : Music API를 처리하는 서버군으로 요청을 전송한다. 
+  * GET /api/photo 요청일 경우 : Photo API를 처리하는 서버군으로 요청을 전송할 수 있다.
+![Application Load Balancer](https://docs.google.com/drawings/d/e/2PACX-1vRsm6UK1slkDzLoaDfFdTxcsMYplzAqvjJaOY55_yrqaxNPeRZ38IZUxekFrNAvdZPhUWkBUVpww0io/pub?w=598&h=259)
+
 
 ### Amazon Simple Storage Service
 
