@@ -44,14 +44,23 @@ AWS&클라우드 기술을 체화해야겠지만 "목표는 자격 취득"입니
 ## 자격증 로드맵
 ![이미지](src/cert-roadmap-update-horz.db90b31e06fa36d126fb6caed07119b1a71181db.png)
 
-## 기본 준비 사항 
-클라우드 개념, AWS 서비스, 보안, 아키텍처, 요금 및 지원에 대한 개요를 제공한다. AWS에 대한 기초로 전반적인 내용을 다룬다. Associate와 Professional을 위한 기본단계다. 이 자격은 "옵션"이다. 
-  * AWS의 실무 적용만이 목표라면 굳이 들을 필요는 없겠으나, 목표가 "자격증 취득"이므로 읽어야 한다.
-  * AWS 계정 생성 후 아래의 AWS Cloud Practitioner essentials 실행 
-  * [AWS Cloud Practitioner essentials](https://aws.amazon.com/ko/training/course-descriptions/cloud-practitioner-essentials/)를 각자 학습 후 1회 토론으로 끝낸다. 
-    * [The Twelve-Factor App](https://www.joinc.co.kr/w/man/12/TheTwelveFactors)
-    * [Cloud Concepts](cloud-practitioner-essentials/CloudConcepts.md)
-    * [AWS Key Service](cloud-practitioner-essentials/KeyService.md)
+## 시작 
+### 첫째주 
+#### 기본준비 사항
+  * AWS 루트 계정 생성 :
+  * AWS 작업 계정 생성. Admin 권한 
+    * IAM
+    * 계정 타입 : Console 권한, API 권한 
+  * AWS 작업 계정에 대한 MFA 적용 : 기본 계정 보안 
+#### 학습내용
+참고 : [AWS Cloud Practitioner essentials](https://aws.amazon.com/ko/training/course-descriptions/cloud-practitioner-essentials/)
+  * [Cloud Concepts](cloud-practitioner-essentials/CloudConcepts.md)
+  * [The Twelve-Factor App](https://www.joinc.co.kr/w/man/12/TheTwelveFactors)
+  * [AWS Key Service](cloud-practitioner-essentials/KeyService.md)
+    * AWS 글로벌 인프라 : 리전, 가요영역, 엣지로케이션 
+    * Virtual Private Cloud : 
+
+### 둘째주 ~ 
   * AWS 아키텍처링-1 : 일반 IaaS 기반 구축
     * 사용 자원 : EC2, VPC, RDS/Aurora, S3, Message Queue, Route53 
     * Network 구성 : 가용성 구성, Public Network & Security Network, VPN, NAT, Router, Interget-Gateway, ENI
@@ -62,6 +71,7 @@ AWS&클라우드 기술을 체화해야겠지만 "목표는 자격 취득"입니
     * 모니터링 : CloudWatch
     * 모델 : REST, 클라우드에서의 모범 아키텍처(고가용성 & 확장성 & 내 결함성 확보)
     * 개발/배포 : Elastic Beanstalk(Automatic Development)
+### n 째주 ~ n+n 째주 
   * AWS 아키텍처링-2 : API-Gateway & ECS & Serverless 기반 구축 
     * 사용 자원 : ECS, API-Gateway, RDS/Aurora, S3, Message Queue, SNS, Route53, Lambda  
     * Network 구성 : Server vs ServerLess 차이점, 어떤 워크로드에 어떤 모델을 써야 하나.
